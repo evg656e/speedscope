@@ -1,5 +1,6 @@
 /**
- * VS Code extension integration code
+ * VS Code extension integration code.
+ * This code works only when app running in [VS Code webview](https://code.visualstudio.com/api/extension-guides/webview).
  */
 
 import type { WebviewApi } from 'vscode-webview'
