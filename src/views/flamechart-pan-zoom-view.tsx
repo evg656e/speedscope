@@ -17,6 +17,7 @@ import {ProfileSearchResults} from '../lib/profile-search'
 import {BatchCanvasTextRenderer, BatchCanvasRectRenderer} from '../lib/canvas-2d-batch-renderers'
 import {Color} from '../lib/color'
 import {Theme} from './themes/theme'
+import {VSCODE_ENABLED, sendJumpToMessage} from '../lib/vscode-extension'
 
 interface FlamechartFrameLabel {
   configSpaceBounds: Rect
@@ -607,6 +608,10 @@ export class FlamechartPanZoomView extends Component<FlamechartPanZoomViewProps,
     if (this.hoveredLabel) {
       this.props.onNodeSelect(this.hoveredLabel.node)
       this.renderCanvas()
+
+      if (VSCODE_ENABLED && ev.ctrlKey) {
+        sendJumpToMessage(this.hoveredLabel.node)
+      }
     } else {
       this.props.onNodeSelect(null)
     }
