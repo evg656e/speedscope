@@ -18,6 +18,7 @@ import {canUseXHR} from '../app-state'
 import {ProfileGroupState} from '../app-state/profile-group'
 import {HashParams} from '../lib/hash-params'
 import {StatelessComponent} from '../lib/preact-helpers'
+import { VSCODE_ENABLED } from '../lib/vscode-extension'
 
 const importModule = import('../import')
 
@@ -290,6 +291,18 @@ export class Application extends StatelessComponent<ApplicationProps> {
     })
   }
 
+  loadFromURI = (uri: string) => {
+    this.loadProfile(async () => {
+      const text = await fetch(uri).then(resp => resp.text())
+      let filename = new URL(uri, window.location.href).pathname
+      if (filename.includes('/')) {
+        filename = filename.slice(filename.lastIndexOf('/') + 1)
+      }
+      console.log('loadFromURI', uri, filename)
+      return await importProfilesFromText(filename, text)
+    })
+  }
+
   loadExample = () => {
     this.loadProfile(async () => {
       const filename = 'perf-vertx-stacks-01-collapsed-all.txt'
@@ -357,6 +370,18 @@ export class Application extends StatelessComponent<ApplicationProps> {
     }
   }
 
+  onWindowMessage = (ev: MessageEvent) => {
+    const message = ev.data
+
+    console.log(message)
+
+    switch (message.command) {
+      case 'open':
+        this.loadFromURI(message.uri)
+        break
+    }
+  }
+
   private saveFile = () => {
     if (this.props.profileGroup) {
       const {name, indexToView, profiles} = this.props.profileGroup
@@ -405,6 +430,9 @@ export class Application extends StatelessComponent<ApplicationProps> {
   componentDidMount() {
     window.addEventListener('keydown', this.onWindowKeyDown)
     window.addEventListener('keypress', this.onWindowKeyPress)
+    if (VSCODE_ENABLED) {
+      window.addEventListener('message', this.onWindowMessage)
+    }
     document.addEventListener('paste', this.onDocumentPaste)
     this.maybeLoadHashParamProfile()
   }
@@ -412,6 +440,9 @@ export class Application extends StatelessComponent<ApplicationProps> {
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onWindowKeyDown)
     window.removeEventListener('keypress', this.onWindowKeyPress)
+    if (VSCODE_ENABLED) {
+      window.removeEventListener('message', this.onWindowMessage)
+    }
     document.removeEventListener('paste', this.onDocumentPaste)
   }
 

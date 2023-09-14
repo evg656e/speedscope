@@ -1,5 +1,6 @@
 import {Atom} from '../lib/atom'
 import {ViewMode} from '../lib/view-mode'
+import {VSCODE_ENABLED} from '../lib/vscode-extension'
 import {getHashParams, HashParams} from '../lib/hash-params'
 import {ProfileGroupAtom} from './profile-group'
 
@@ -43,7 +44,7 @@ export const dragActiveAtom = new Atom<boolean>(false, 'dragActive')
 // from a file:// URL, and via websites. In the case of file:// URLs,
 // however, XHR will be unavailable to fetching files in adjacent directories.
 const protocol = window.location.protocol
-export const canUseXHR = protocol === 'http:' || protocol === 'https:'
+export const canUseXHR = protocol === 'http:' || protocol === 'https:' || (VSCODE_ENABLED && protocol === 'vscode-webview:')
 const isImmediatelyLoading = canUseXHR && hashParams.profileURL != null
 export const loadingAtom = new Atom<boolean>(isImmediatelyLoading, 'loading')
 
